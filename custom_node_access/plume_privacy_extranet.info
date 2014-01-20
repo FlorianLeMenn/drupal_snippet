@@ -1,6 +1,0 @@
-name = Plume extranet privacy
-description = "Plume extranet privacy permet de gérer les permission d'accès sur les node de 3 types visible seulement depuis l'extranet"
-
-version = 7.x
-core = 7.x
-datestamp = "1294378870"
