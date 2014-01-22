@@ -1,0 +1,6 @@
+name = Custom_block_menu
+description = "Ce module permet d'afficher un menu à niveau en deux block, le block de premier niveau, et celui des sous niveau dans un block différent. Le second block est générique en fonction du lien de menu sélectionné."
+
+version = 7.x-1.0
+core = 7.x
+datestamp = "1294378870"

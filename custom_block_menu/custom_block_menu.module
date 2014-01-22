@@ -1,0 +1,135 @@
+<?php 
+
+/*
+ * @file
+ *
+ */
+
+/**
+ * Implements hook_help().
+ */
+function custom_block_menu_help($page, $arg) {
+
+  switch ($page) {
+    case 'admin/help#plume_menu':
+      $output = '';
+      $output .= '<p>'. t('Menu Block Split allows any menu block to be split into two blocks: one with the first level menu entries and a second one for all the sublevels.') .'</p>';
+      $output .= '<p>'. t('Once you set how many first level menu blocks you need you can go to the <a href="@blocks">blocks admin page</a> to admin your new blocks. You should find a new Menu Block Split second level block and as many Menu Block Split first level blocks as you have set.', array('@blocks' => url('admin/build/block'))) .'</p>';
+      return $output;
+  }
+}
+
+/*
+ * Implements hook_block_info().
+ */
+ function custom_block_menu_block_info() {    
+
+  $blocks['plume_menu_block'] = array(
+    // info: The name of the block.
+    'info' => t('Menu block custom'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function custom_block_menu_block_configure($delta = 0) {
+	$form = array();
+  if($delta == 'plume_menu_block'){
+    $form['plume-menu'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Choix du menu'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['plume-menu']['current-menu'] = array(
+    '#type' => 'select',
+    '#title' => t('Menu parent'),
+    '#description' => t('The menu you want to be displayed using Plume menu.') . ' <em>(' . t('Default') . ': &lt;Main menu&gt;)</em>',
+    '#default_value' => variable_get('my-current-menu', 'main-menu:0'),
+    '#options' => menu_parent_options(menu_get_menus(), array('mlid' => 0)),
+  );
+}
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function custom_block_menu_block_save($delta = 0, $edit = array()) {
+	
+	 dsm($edit);
+	 variable_set('my-current-menu', $edit);
+}
+
+
+/*
+ * Implements hook_block_view().
+ */
+function custom_block_menu_block_view($delta){
+
+	//initialisation des variables
+	$menu 			= variable_get('my-current-menu','main-menu:0');
+	$menu_name		= explode(':', $menu['current-menu']);
+	$block 			= array();
+	$children_items	= array(); 
+
+	$children_items = _get_menu_parent($menu_name[0]);
+
+ switch ($delta) {
+    case 'plume_menu_block':
+      // Creation du contenu ici
+      $block['subject'] = t('Menu block custom');
+      $block['content'] = $children_items; 
+      break;
+  }
+	return $block;
+}
+
+
+function _get_menu_parent($menu_name) {
+
+	$parent_items   = array();
+	$children_items = array();
+	$level			= 0;
+
+	//récupérer l'url courrant
+	$path = current_path();
+
+	//récupération du menu entiermenu_tree_output($children);
+	$tree = menu_tree_all_data($menu_name);
+
+	foreach ($tree as $key => $parent) {
+		//array_push($parent_items, $parent['link']['link_title']);
+
+		 if ($parent['link']['link_path'] == $path && $parent['link']['has_children'] == 1) {
+
+		 	//appel de la fonction de récupération des enfants
+		 	$children_items =  _get_menu_children($parent, $parent['link']['depth']);
+		 }
+	}
+	return $children_items;
+}
+
+/**
+ * Implements _get_menu_children.
+ * fonction récursive permettant de récupérer les sous-menu
+ */
+function _get_menu_children($parent, $level) {
+
+//initialisation des variables 
+$children_items = null;
+
+if (isset($parent['below']) && !empty($parent['below'])) {
+
+	foreach ($parent['below'] as $key => $children) {
+		$children_items .= '<li>'. l(t($children['link']['link_title']), $children['link']['link_path']) . '</li>';
+
+		if ($children['link']['has_children'] == 1)
+
+ 			$children_items .= '<ul class="active-trail">' . _get_menu_children($children, $children['link']['depth']) . '</ul>';
+		}
+	}
+	return $children_items;
+}
