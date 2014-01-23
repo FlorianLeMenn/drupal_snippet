@@ -1,6 +1,11 @@
-name = Custom_block_menu
-description = "Ce module permet d'afficher un menu à niveau en deux block, le block de premier niveau, et celui des sous niveau dans un block différent. Le second block est générique en fonction du lien de menu sélectionné."
-
-version = 7.x-1.0
+name = "Custom menu block"
+description = "Ce module permet d'afficher un menu à niveau en deux block, le block de premier niveau, et celui de second niveau dans un block différent. Le second block est générique en fonction du lien de menu sélectionné."
+package = Menu block
+configure = admin/structure/block/manage/plume_menu/custom_menu_block/configure
 core = 7.x
+
+; Information added by drupal.org packaging script on 2013-04-27
+version = "7.x-1.0"
+core = "7.x"
+project = "Plume menu"
 datestamp = "1294378870"
