@@ -8,7 +8,7 @@
 /**
  * Implements hook_permission().
  */
-function menu_block_permission() {
+function custom_block_menu_permission() {
   return array(
     'administer plume menu' => array(
       'title' => t('Administer Plume menu'),
@@ -19,13 +19,13 @@ function menu_block_permission() {
 /**
  * Implements hook_help().
  */
-function menu_block_help($path, $arg) {
+function custom_block_menu_help($path, $arg) {
 
   switch ($path) {
     case 'admin/modules#description':
       $output = '';
       $output .= '<p>'. t('Ce module permet d afficher un menu à niveau en deux block, le block de premier niveau, et celui de second niveau dans un block différent. Le second block est générique en fonction du lien de menu sélectionné.') .'</p>';
-      $output .= '<p>'. t(' <a href="@blocks">blocks admin page</a> ', array('@blocks' => url('admin/structure/block/manage/menu_block/custom_menu_block/configure'))) .'</p>';
+      $output .= '<p>'. t(' <a href="@blocks">blocks admin page</a> ', array('@blocks' => url('admin/structure/block/manage/custom_block_menu/custom_block_menu/configure'))) .'</p>';
       break;
     return $output;
   }
@@ -34,11 +34,11 @@ function menu_block_help($path, $arg) {
 /*
  * Implements hook_block_info().
  */
- function menu_block_block_info() {    
+ function custom_block_menu_block_info() {    
 
-  $blocks['custom_menu_block'] = array(
+  $blocks['custom_block_menu'] = array(
     // info: The name of the block.
-    'info' => t('Plume menu custom'),
+    'info' => t('Custom menu block'),
   );
   return $blocks;
 }
@@ -46,34 +46,34 @@ function menu_block_help($path, $arg) {
 /**
  * Implements hook_block_configure().
  */
-function menu_block_block_configure($delta = 0) {
+function custom_block_menu_block_configure($delta = 0) {
   $form = array();
-  if($delta == 'custom_menu_block'){
+  if($delta == 'custom_block_menu'){
 
     //conteneur "Choix du menu"
-    $form['plume-menu'] = array(
+    $form['custom-menu'] = array(
       '#type' => 'fieldset',
       '#title' => t('Choix du menu'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
     );
 
-    $form['plume-menu']['current-menu'] = array(
+    $form['custom-menu']['current-menu'] = array(
       '#type' => 'select',
       '#title' => t('Menu parent'),
       '#description' => t('The menu you want to be displayed using Plume menu.') . ' <em>(' . t('Default') . ': &lt;Main menu&gt;)</em>',
-      '#default_value' => variable_get('my-current-menu', 'main-menu:0'),
+      '#default_value' => variable_get('current-menu', 'main-menu:0'),
       '#options' => menu_parent_options(menu_get_menus(), array('mlid' => 0)),
     );
 
-    $form['plume-menu']['menu-type-1'] = array(
+    $form['custom-menu']['menu-type-1'] = array(
       '#type' => 'checkbox',
       '#title' => t('Menu type 1'),
       '#description' => t('The menu display all links in same level'),
       '#default_value' => variable_get('menu-type-1', 0),
     );
 
-    $form['plume-menu']['menu-type-2'] = array(
+    $form['custom-menu']['menu-type-2'] = array(
       '#type' => 'checkbox',
       '#title' => t('Menu type 2'),
       '#description' => t('The menu display all sub-menu links'),
@@ -86,25 +86,24 @@ function menu_block_block_configure($delta = 0) {
 /**
  * Implements hook_block_save().
  */
-function menu_block_block_save($delta = 0, $edit = array()) {
+function custom_block_menu_block_save($delta = 0, $edit = array()) {
   
-   variable_set('my-current-menu', $edit['my-current-menu']);
    variable_set('menu-type-1', $edit['menu-type-1']);
    variable_set('menu-type-2', $edit['menu-type-2']);
+   variable_set('current-menu', $edit['current-menu']);
 }
-
 
 /*
  * Implements hook_block_view().
  */
-function menu_block_block_view($delta){
+function custom_block_menu_block_view($delta){
 
   //initialisation des variables
-  $menu       = variable_get('my-current-menu','main-menu:0');
-  $menu_name    = explode(':', $menu);
-  $menu_type_1  = variable_get('menu-type-1');
-  $menu_type_2  = variable_get('menu-type-2');
-  $block      = array();
+  $menu           = variable_get('current-menu', 'main-menu:0');
+  $menu_name      = explode(':', $menu);
+  $menu_type_1    = variable_get('menu-type-1');
+  $menu_type_2    = variable_get('menu-type-2');
+  $block          = array();
   $children_items = array();  
 
   //test du type de menu choisi
@@ -122,8 +121,8 @@ function menu_block_block_view($delta){
   }
 
  switch ($delta) {
-    case 'custom_menu_block':
-      $block['subject'] = t('Plume menu block');
+    case 'custom_block_menu':
+      $block['subject'] = t('Custom menu block');
       $block['content'] = $children_items; 
       break;
   }
@@ -186,7 +185,7 @@ function _get_menu_type_1($menu_name) {
 function _get_menu_type_2($menu_name) {
 
   $parent_items   = array();
-  $children_items = array();
+  $children_items = null;
 
   //récupérer l'url courrant
   $path = current_path();
@@ -197,10 +196,13 @@ function _get_menu_type_2($menu_name) {
   foreach ($tree as $key => $parent) {
 
      if ($parent['link']['link_path'] == $path && $parent['link']['has_children'] == 1) {
-
+      $children_items .= '<ul class""><h4>' . t($parent['link']['link_title']).'</h4>';
       //appel de la fonction de récupération des enfants
-      $children_items =  _get_menu_children($parent, $parent['link']['depth']);
+      $children_items .=  _get_menu_children($parent, $parent['link']['depth']);
      }
+  }
+  if (!empty($children_items) && $children_items != null) {
+     $children_items .= '</ul>';
   }
   return $children_items;
 }
@@ -223,14 +225,14 @@ if (isset($parent['below']) && !empty($parent['below'])) {
 
       $children_items .= '<ul class="active-trail">' . _get_menu_children($children, $children['link']['depth']) . '</ul>';
     }
-  }
+}
   return $children_items;
 }
 
 function _get_current_menu_item() {
 
   //initilisation des variables
-  $items        = null;
+  $items            = null;
   $current_item     = null;
   $current_mlid     = null;
   $current_plid     = null;
@@ -242,23 +244,33 @@ function _get_current_menu_item() {
   //récupère l'item de menu courrant
   $items        = menu_get_active_trail();
 
-  //le dernier item, conc l'item courrant
+ 
+  if (isset($items) && !empty($items)) {
+  //le dernier item, conc l'item courrant 
   $current_item     = end($items);
-  $current_mlid     = $current_item['mlid'];
-  $current_plid     = $current_item['plid'];
-  $current_depth    = $current_item['depth'];
-  $current_item_path  = $current_item['link_path'];
-  $current_item_name  = $current_item['link_title'];
+    if ($current_item['href'] != "<front>") {
 
-  $my_item = array(
-      'link_title' => $current_item_name,
-      'link_path' => $current_item_path,
-      'mlid'    => $current_mlid ,
-      'plid'    => $current_plid,
-      'depth'   => $current_depth ,
-    );
+      $current_mlid     = $current_item['mlid'];
+      $current_plid     = $current_item['plid'];
+      $current_depth    = $current_item['depth'];
+      $current_item_path  = $current_item['link_path'];
+      $current_item_name  = $current_item['link_title'];
 
-  return $my_item;
+      $my_item = array(
+          'link_title' => $current_item_name,
+          'link_path' => $current_item_path,
+          'mlid'    => $current_mlid ,
+          'plid'    => $current_plid,
+          'depth'   => $current_depth ,
+          ); 
+
+    return $my_item;
+    } 
+  
+  }
+  
+
+ 
 }
 function _get_current_menu_parent_item($id, $parent_list) {
 
@@ -278,6 +290,5 @@ function _get_current_menu_parent_item($id, $parent_list) {
         );
     return $my_parent;
     }
-  }
-  
+  } 
 }

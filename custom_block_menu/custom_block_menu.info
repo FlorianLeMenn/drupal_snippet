@@ -1,7 +1,7 @@
 name = "Custom menu block"
 description = "Ce module permet d'afficher un menu à niveau en deux block, le block de premier niveau, et celui de second niveau dans un block différent. Le second block est générique en fonction du lien de menu sélectionné."
 package = Menu block
-configure = admin/structure/block/manage/menu_block/custom_menu_block/configure
+configure = admin/structure/block/manage/custom_block_menu/custom_block_menu/configure
 core = 7.x
 
 ; Information added by drupal.org packaging script on 2013-04-27
