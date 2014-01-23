@@ -66,18 +66,12 @@ function custom_block_menu_block_configure($delta = 0) {
       '#options' => menu_parent_options(menu_get_menus(), array('mlid' => 0)),
     );
 
-    $form['custom-menu']['menu-type-1'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Menu type 1'),
-      '#description' => t('The menu display all links in same level'),
-      '#default_value' => variable_get('menu-type-1', 0),
-    );
-
-    $form['custom-menu']['menu-type-2'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Menu type 2'),
-      '#description' => t('The menu display all sub-menu links'),
-      '#default_value' => variable_get('menu-type-2', 1),
+   $form['plume-menu']['menu-type'] = array(
+      '#type' => 'radios',
+      '#title' => t(' Select display type'),
+      '#description' => t('Select your menu type'),
+      '#default_value' => variable_get('menu-type', 0),
+      '#options' => array(t('Type 1'), t('type 2')),
     );
 }
   return $form;
@@ -88,8 +82,7 @@ function custom_block_menu_block_configure($delta = 0) {
  */
 function custom_block_menu_block_save($delta = 0, $edit = array()) {
   
-   variable_set('menu-type-1', $edit['menu-type-1']);
-   variable_set('menu-type-2', $edit['menu-type-2']);
+    variable_set('menu-type', $edit['menu-type']);
    variable_set('current-menu', $edit['current-menu']);
 }
 
@@ -99,30 +92,27 @@ function custom_block_menu_block_save($delta = 0, $edit = array()) {
 function custom_block_menu_block_view($delta){
 
   //initialisation des variables
-  $menu           = variable_get('current-menu', 'main-menu:0');
-  $menu_name      = explode(':', $menu);
-  $menu_type_1    = variable_get('menu-type-1');
-  $menu_type_2    = variable_get('menu-type-2');
-  $block          = array();
+  $menu       = variable_get('current-menu','main-menu:0');
+  $menu_name    = explode(':', $menu);
+  $menu_type    = variable_get('menu-type');
+  $block      = array();
   $children_items = array();  
 
-  //test du type de menu choisi
-  if (!empty($menu_type_1) && 
-    isset($menu_type_1) && 
-    $menu_type_1 == 1) {
+  if (isset($menu_type) && 
+    $menu_type == 0) {
 
     $children_items = _get_menu_type_1($menu_name[0]);
   }
-  elseif (!empty($menu_type_2) && 
-      isset($menu_type_2) && 
-      $menu_type_2 == 1) {
+  elseif (!empty($menu_type) && 
+      isset($menu_type) && 
+      $menu_type == 1) {
 
     $children_items = _get_menu_type_2($menu_name[0]);
   }
 
  switch ($delta) {
-    case 'custom_block_menu':
-      $block['subject'] = t('Custom menu block');
+    case 'plume_menu_block':
+      $block['subject'] = t('Plume menu block');
       $block['content'] = $children_items; 
       break;
   }
@@ -184,7 +174,6 @@ function _get_menu_type_1($menu_name) {
 
 function _get_menu_type_2($menu_name) {
 
-  $parent_items   = array();
   $children_items = null;
 
   //récupérer l'url courrant
