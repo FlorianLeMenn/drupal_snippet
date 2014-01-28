@@ -1,0 +1,11 @@
+name = "Safe mail"
+description = "Ce module permet de protéger vos champs d'adresse ,mail contre les spams ."
+core = 7.x
+configure = admin/config/content/formats/filtered_html
+
+dependencies[] = invisimail
+
+version = "7.x-1.0"
+core = "7.x"
+project = "Safe mail"
+datestamp = "1294378870"

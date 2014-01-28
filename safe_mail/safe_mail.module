@@ -1,0 +1,74 @@
+<?php
+// $Id: invisimail.api.php,v 1.1.2.1 2010/11/18 22:36:56 crell Exp $
+
+/**
+ * Defines encoders available to invisimail to get turned into formatters.
+ */
+//define('INVISIMAIL_MAILTO_ASCII', '&#109;&#97;&#105;&#108;&#116;&#111;&#58;');
+
+// function safe_mail_invisimail_encoder_info() {
+//    $encoders['yooooooo'] = array(
+//     'label' => t('HTML entities !!!!'),
+//     'settings callback' => 'safe_mail_encoder_html_entities_settings',
+//     'encode callback' => 'safe_mail_encoder_html_entities_encode',
+//     'default settings' => array('link' => 0),
+
+//   );
+ 
+// }
+
+/**
+ * Allows modules to alter the encoder definitions provided by other modules.
+ */
+function safe_mail_invisimail_encoder_info_alter(&$encoders) {
+  $encoders['yooooooo'] = array(
+    'label' => t('crypt emails '),
+    'settings callback' => 'safe_mail_settings',
+    'encode callback' => 'safe_mail_crypt',
+    'default settings' => array('link' => 0),
+
+  );
+}
+
+function safe_mail_settings($form, &$form_state, $settings) {
+
+  $element['link'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Automatically create links from email addresses.'),
+    '#default_value' => $settings['link'],
+    '#description' => t(' "mailto:" link.'),
+  );
+
+  return $element;
+}
+
+
+function safe_mail_crypt($string, $settings = array(), $is_link = FALSE) {
+  $encode = _crypt_email($string);
+   
+  if ($settings['link'] && !$is_link) {
+    $encode = '<a href="' . INVISIMAIL_MAILTO_ASCII . $encode .'">' . $encode .'</a>';
+  }
+
+  return $encode;
+}
+
+function _crypt_email($string) {
+    $encode       = $string;
+    $pattern      = '=([a-zA-Z0-9_\-\.]+)(@)([a-zA-Z0-9]+)(\.)([a-zA-Z0-9]+)=';
+    $replacement  = '$1$2$3$4$5';
+
+    if(preg_match($pattern, $encode) == 1) {
+
+      $encode = preg_replace($pattern, $replacement, $encode);
+      $encode = str_replace("@", "[at]", $encode);
+      $encode = str_replace(".", "[dot]", $encode);
+      $encode = strrev($encode);
+      //exit();
+    }
+    else {
+       $encode = "empty";
+    }
+
+  return $encode;
+}
