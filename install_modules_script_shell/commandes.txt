@@ -1,0 +1,3 @@
+ mv /home/plume/drush-backups/archive-dump/20140323095847/floriandrop2.20140323_095849.tar.gz ~/public_html/drupaltest.preprod.plume.typhon.net/floriandrop/boutique/save1
+
+drush en -y views_bulk_operations module_filter admin rubik cas field_permissions nodequeue page_title context rules panels views admin_menu taxonomy_menu video_filter contact_forms wisiwyg og role_delegation apachesolr crich_snippets solr_devel apachesolr_attachments apachesolr_autocomplete aptcha honeypot corolla imce i18n pathauto webform token bundle_copy entity views_slideshow quicktabs ds menu_breadcrumb socialmedia devel backup_migrate

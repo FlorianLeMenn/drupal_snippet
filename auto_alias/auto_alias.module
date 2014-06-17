@@ -1,0 +1,32 @@
+<?php
+
+function auto_alias_taxonomy_vocabulary_insert($vocabulary) {
+  if (module_exists('pathauto')) {
+    module_load_include('inc', 'pathauto'); // include Pathauto module
+
+    $path = array(
+            'source'=> "admin/structure/taxonomy/" . $vocabulary->machine_name,
+            'alias' =>'administration/nomenclatures/'. $vocabulary->machine_name
+          );
+
+     _pathauto_set_alias($path);
+  }
+}
+  function auto_alias_taxonomy_vocabulary_update($vocabulary) {
+    if (module_exists('pathauto')) {
+      module_load_include('inc', 'pathauto'); // include Pathauto module
+
+      $path = array(
+        'source'=> "admin/structure/taxonomy/" . $vocabulary->machine_name,
+        'alias' =>'administration/nomenclatures/'. $vocabulary->machine_name
+      );
+       _pathauto_set_alias($path);
+    }
+}
+function auto_alias_taxonomy_vocabulary_delete($vocabulary) {
+  if (module_exists('pathauto')) {
+    module_load_include('inc', 'pathauto'); // include Pathauto module
+    $source = "admin/structure/taxonomy/" . $vocabulary->machine_name;
+    pathauto_path_delete_all($source);
+  }
+}
